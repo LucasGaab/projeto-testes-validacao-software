@@ -1,20 +1,20 @@
 [
   {
     "criterion": "statement",
-    "cost": 2,
+    "cost": 5,
     "bugDetected": true,
-    "details": "\n> math-utils@1.0.0 test\n> jest --testPathPattern=/Users/jorgefreitas/Documents/Projects/criterios-cobertura-experimento/suítes-de-teste-geradas/math-utils/statement/statement.test.js\n\n"
+    "details": "\n> math-utils@1.0.0 test\n> jest --testPathPattern=/Users/antoniohenrique/Documents/UFPE/projeto-testes-validacao-software/suítes-de-teste-geradas/math-utils/statement/statement.test.js\n\n"
   },
   {
     "criterion": "branch",
-    "cost": 2,
+    "cost": 5,
     "bugDetected": true,
-    "details": "\n> math-utils@1.0.0 test\n> jest --testPathPattern=/Users/jorgefreitas/Documents/Projects/criterios-cobertura-experimento/suítes-de-teste-geradas/math-utils/branch/branch.test.js\n\n"
+    "details": "\n> math-utils@1.0.0 test\n> jest --testPathPattern=/Users/antoniohenrique/Documents/UFPE/projeto-testes-validacao-software/suítes-de-teste-geradas/math-utils/branch/branch.test.js\n\n"
   },
   {
     "criterion": "mcdc",
-    "cost": 2,
+    "cost": 5,
     "bugDetected": true,
-    "details": "\n> math-utils@1.0.0 test\n> jest --testPathPattern=/Users/jorgefreitas/Documents/Projects/criterios-cobertura-experimento/suítes-de-teste-geradas/math-utils/mcdc/mcdc.test.js\n\n"
+    "details": "\n> math-utils@1.0.0 test\n> jest --testPathPattern=/Users/antoniohenrique/Documents/UFPE/projeto-testes-validacao-software/suítes-de-teste-geradas/math-utils/mcdc/mcdc.test.js\n\n"
   }
 ]
