@@ -2,7 +2,7 @@
 // FUNÇÃO 1: CÁLCULO DE FATORIAL COM TRATAMENTO DE CASOS ESPECIAIS
 // ============================================================================
 // Bug: Não trata corretamente o caso de overflow para números grandes
-// Critérios necessários: Branch Coverage, MC/DC, Data Flow (All-uses)
+// Critérios necessários: Statement, Branch Coverage, MC/DC, Data Flow (All-uses)
 
 function calcularFatorial(n) {
   // Validação de entrada
