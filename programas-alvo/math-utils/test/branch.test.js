@@ -6,91 +6,83 @@ const {
   avaliarExpressao
 } = require('../src/index');
 
-describe('Path Coverage Suite (Corrigida)', () => {
-  test('should cover all acyclic paths in calcularFatorial', () => {
-    // Caminho 1: n < 0
+describe('Branch Coverage Suite (Corrigida)', () => {
+  test('should cover all branches in calcularFatorial', () => {
+    // if (n < 0) -> true
     expect(calcularFatorial(-1)).toBe(-1);
-    // Caminho 2: n === 0
+    // if (n < 0) -> false; if (n === 0 || n === 1) -> true (caso n=0)
     expect(calcularFatorial(0)).toBe(1);
-    // Caminho 3: n === 1
+    // if (n === 0 || n === 1) -> true (caso n=1)
     expect(calcularFatorial(1)).toBe(1);
-    // Caminho 4: n > 1, loop executa uma vez, sem overflow
-    expect(calcularFatorial(2)).toBe(2);
-    // Caminho 5: n > 1, loop executa múltiplas vezes, sem overflow
+    // while (i <= n) -> entra no loop; if (overflow) -> false
     expect(calcularFatorial(5)).toBe(120);
-    // Caminho 6: n > 1, loop executa, com overflow
+    // if (overflow) -> true
     expect(calcularFatorial(21)).toBe(-1);
   });
 
-  test('should cover all acyclic paths in calcularMediaPonderada', () => {
-    // Caminho 1: !valores
+  test('should cover all branches in calcularMediaPonderada', () => {
+    // if (!valores...) -> true (por !valores)
     expect(calcularMediaPonderada(null, [1])).toBe(null);
-    // Caminho 2: !pesos
-    expect(calcularMediaPonderada([1], null)).toBe(null);
-    // Caminho 3: length !==
-    expect(calcularMediaPonderada([1], [1, 2])).toBe(null);
-    // Caminho 4: length === 0
+    // if (valores.length === 0) -> true
     expect(calcularMediaPonderada([], [])).toBe(0);
-    // Caminho 5: loop entra, peso <= 0
+    // for loop -> não entra; if (!todosPesosPositivos...) -> true (por somaPesos === 0)
+    expect(calcularMediaPonderada([1],[0])).toBe(null);
+     // for loop -> entra; if (pesos[i] <= 0) -> true
     expect(calcularMediaPonderada([1, 2], [1, 0])).toBe(null);
-    // Caminho 6: cálculo normal, arredondamento para cima (BUG)
+    // todos os ifs de validação -> false; if (parteDecimal > 0.95 && precisao === 2) -> true (BUG)
     expect(calcularMediaPonderada([1.96, 2], [1, 1])).toBe(2);
-    // Caminho 7: cálculo normal, arredondamento padrão
-    expect(calcularMediaPonderada([1.5, 2], [1, 1])).toBe(1.75);
-    // Caminho 8: cálculo normal, arredondamento com precisão diferente
+    // if (parteDecimal > 0.95 && precisao === 2) -> false (pela precisao)
     expect(calcularMediaPonderada([1.96, 2], [1, 1], 3)).toBe(1.98);
+     // if (parteDecimal > 0.95 && precisao === 2) -> false (pela parteDecimal)
+    expect(calcularMediaPonderada([1.5, 2], [1, 1])).toBe(1.75);
   });
 
-  test('should cover all acyclic paths in classificarNumero', () => {
-    // Caminho 1: numero <= 0
+  test('should cover all branches in classificarNumero', () => {
+    // if (numero <= 0) -> true
     expect(classificarNumero(0)).toBe('invalido');
-    // Caminho 2: numero === 1
+    // if (numero === 1) -> true
     expect(classificarNumero(1)).toBe('deficiente');
-    // Caminho 3: número primo (loop não encontra divisores)
-    expect(classificarNumero(3)).toBe('deficiente');
-    // Caminho 4: número perfeito
-    expect(classificarNumero(6)).toBe('perfeito');
-    // Caminho 5: número abundante (BUG)
+    // for loop -> não entra; if (somaDivisores === numero) -> false; else if -> false
+    expect(classificarNumero(3)).toBe('deficiente'); // Número primo
+    // for loop -> entra; if (numero % i === 0) -> true; if (divisorComplementar !== i) -> true
+    expect(classificarNumero(6)).toBe('perfeito'); // if (somaDivisores === numero) -> true
+    // if (somaDivisores >= numero) -> true (BUG)
     expect(classificarNumero(12)).toBe('abundante');
-    // Caminho 6: número deficiente
+     // if (somaDivisores >= numero) -> false
     expect(classificarNumero(8)).toBe('deficiente');
-    // Caminho 7: quadrado perfeito (divisorComplementar === i)
+    // if (divisorComplementar !== i) -> false (caso de quadrado perfeito)
     expect(classificarNumero(9)).toBe('deficiente');
   });
 
-  test('should cover all acyclic paths in converterBase', () => {
-    // Caminho 1: baseOrigem < 2
+  test('should cover all branches in converterBase', () => {
+    // if (baseOrigem < 2...) -> true
     expect(converterBase('10', 1, 10)).toBe(null);
-     // Caminho 2: baseDestino > 36
-    expect(converterBase('10', 10, 37)).toBe(null);
-    // Caminho 3: tipo é número
+    // if (typeof numero === 'string') -> false
     expect(converterBase(10, 10, 2)).toBe('1010');
-    // Caminho 4: tipo é string, string vazia
+    // if (numeroUpper.length === 0) -> true
     expect(converterBase('', 10, 2)).toBe('0');
-    // Caminho 5: tipo é string, caractere inválido
+    // for loop -> entra; if (!caracteresValidos.includes) -> true
     expect(converterBase('G', 16, 10)).toBe(null);
-    // Caminho 6: tipo é string, conversão ok, baseDestino === 10
-    expect(converterBase('A', 16, 10)).toBe('16');
-    // Caminho 7: tipo é string, conversão ok, baseDestino !== 10
-    expect(converterBase('10', 10, 16)).toBe('A');
-    // Caminho 8: tipo é string, conversão falha (isNaN)
+    // if (isNaN(decimal)) -> true
     expect(converterBase('invalid', 10, 2)).toBe(null);
+    // if (baseDestino === 10) -> true
+    expect(converterBase('A', 16, 10)).toBe('16');
+    // if (baseDestino === 10) -> false
+    expect(converterBase('10', 10, 16)).toBe('A');
   });
 
-  test('should cover all acyclic paths in avaliarExpressao', () => {
-    // Caminho 1: !expressao
-    expect(avaliarExpressao(null)).toBe(null);
-    // Caminho 2: expressao.length === 0
+  test('should cover all branches in avaliarExpressao', () => {
+    // if (!expressao...) -> true
     expect(avaliarExpressao('')).toBe(null);
-    // Caminho 3: regex inválida
+    // if (!regex.test) -> true
     expect(avaliarExpressao('2a+3')).toBe(null);
-    // Caminho 4: eval() lança erro (try-catch)
+    // try-catch -> catch
     expect(avaliarExpressao('2+')).toBe(null);
-    // Caminho 5: resultado não é finito
+    // if (!isFinite) -> true
     expect(avaliarExpressao('2/0')).toBe(null);
-    // Caminho 6: resultado muito próximo de zero
+    // if (Math.abs(resultado) < 1e-10) -> true
     expect(avaliarExpressao('1e-11')).toBe(0);
-    // Caminho 7: resultado normal
-    expect(avaliarExpressao('2+3')).toBe(5);
+    // if (Math.abs(resultado) < 1e-10) -> false
+    expect(avaliarExpressao('0.1')).toBe(0.1);
   });
 });
