@@ -65,13 +65,25 @@ describe('MCDC Coverage Suite (Corrigida)', () => {
     expect(converterBase('10', 10, 16)).toBe('A');
   });
 
-  test('should cover MCDC for avaliarExpressao conditions', () => {
-    // Decisão: !expressao || expressao.length === 0
-    // Condições: A=!expressao, B=expressao.length === 0
-    // Par para A: { (V)->V }, { (F,F)->F }
-    expect(avaliarExpressao(null)).toBe(null); // A=V, B é irrelevante
-    expect(avaliarExpressao('2+3')).toBe(5); // A=F, B=F (par com o de cima)
-    // Par para B: { (F,V)->V }, { (F,F)->F }
-    expect(avaliarExpressao('')).toBe(null); // A=F, B=V
-  });
+ test('should cover MCDC for all conditions in avaliarExpressao', () => {
+    // Decisão 1: !expressao || expressao.length === 0
+    expect(avaliarExpressao(null)).toBe(null);
+    expect(avaliarExpressao('')).toBe(null);
+    expect(avaliarExpressao('5')).toBe(5); // Par F,F com os de cima
+
+    // Decisão 2: resultado === Infinity (Condição única)
+    expect(avaliarExpressao('1/0')).toBe(null); // True
+    // NOVO: Teste para o ramo False que captura o bug
+    expect(avaliarExpressao('-1/0')).toBe(null); // False (REPROVA, CAPTURA O BUG 1)
+
+    // Decisão 3: resultado > 0 && resultado < 1e-10
+    // Condições: C = (resultado > 0), D = (resultado < 1e-10)
+    // Par para C: { (V,V)->V }, { (F,V)->F }
+    expect(avaliarExpressao('1e-11')).toBe(0); // C=V, D=V -> V
+    // NOVO: Teste que torna a condição C falsa e captura o bug
+    expect(avaliarExpressao('0.2 - 0.3')).toBe(0); // C=F, D=V -> F (REPROVA, CAPTURA O BUG 2)
+    
+    // Par para D: { (V,V)->V }, { (V,F)->F }
+    // A primeira linha do par acima ('1e-11') já serve como (V,V)->V
+    expect(avaliarExpressao('0.1')).toBe(0.1); // C=V, D=F -> F
 });
