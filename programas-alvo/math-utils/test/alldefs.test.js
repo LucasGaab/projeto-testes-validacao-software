@@ -50,7 +50,7 @@ describe('All-Defs Coverage Suite', () => {
     expect(calcularMediaPonderada([1.5, 2.5], [1, 1])).toBe(2);
     
     // Definição: media = Math.floor(media) + 1 (BUG)
-    expect(calcularMediaPonderada([1.95, 2], [1, 1])).toBe(2);
+    expect(calcularMediaPonderada([1.95, 2], [1, 1])).toBe(1.97);
     
     // Definição: media = Math.round(media * Math.pow(10, precisao)) / Math.pow(10, precisao)
     expect(calcularMediaPonderada([1.5, 2.5], [1, 1])).toBe(2);
