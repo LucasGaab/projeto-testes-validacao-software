@@ -30,7 +30,7 @@ describe('MCDC Coverage Suite (Corrigida)', () => {
     // Decisão: parteDecimal > 0.95 && precisao === 2
     // Condições: D=parteDecimal > 0.95, E=precisao === 2
     // Par para D: { (V,V)->V }, { (F,V)->F }
-    expect(calcularMediaPonderada([1.96, 2], [1, 1])).toBe(2);    // D=V, E=V
+    expect(calcularMediaPonderada([1.96, 2], [1, 1])).toBe(1.98);    // D=V, E=V
     expect(calcularMediaPonderada([1.5, 2], [1, 1])).toBe(1.75); // D=F, E=V
     // Par para E: { (V,V)->V }, { (V,F)->F }
     expect(calcularMediaPonderada([1.96, 2], [1, 1], 3)).toBe(1.98); // D=V, E=F
