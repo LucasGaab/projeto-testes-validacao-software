@@ -66,7 +66,7 @@ describe('Branch Coverage Suite (Corrigida)', () => {
     // if (isNaN(decimal)) -> true
     expect(converterBase('invalid', 10, 2)).toBe(null);
     // if (baseDestino === 10) -> true
-    expect(converterBase('A', 16, 10)).toBe('16');
+    expect(converterBase('A', 16, 10)).toBe('10');
     // if (baseDestino === 10) -> false
     expect(converterBase('10', 10, 16)).toBe('A');
   });
