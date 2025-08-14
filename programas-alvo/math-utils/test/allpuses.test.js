@@ -147,3 +147,4 @@ describe('All-p-uses Coverage Suite', () => {
     // O esperado é 0, mas a função com bug retornará um número pequeno e negativo.
     expect(avaliarExpressao('0.2 - 0.3')).toBe(0);   // False (por ser número negativo)
 });
+});
