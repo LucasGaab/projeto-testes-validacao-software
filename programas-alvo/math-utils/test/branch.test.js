@@ -92,5 +92,5 @@ describe('Branch Coverage Suite (Corrigida)', () => {
     // NOVO: if (resultado > 0 && ...) -> false (por ser um número negativo) (CAPTURA O BUG 2)
     // O esperado é 0, mas a função com bug retornará um número pequeno e negativo.
     expect(avaliarExpressao('0.2 - 0.3')).toBe(0);
-});
+  });
 });
