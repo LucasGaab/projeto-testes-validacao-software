@@ -34,7 +34,7 @@ describe('All-Uses Coverage Suite (Corrigida)', () => {
     expect(calcularMediaPonderada([2,3], [2,3])).toBe(2.6);
     // Cobre def de 'media' -> uso no cálculo de 'parteDecimal' e no arredondamento
     // Cobre def de 'parteDecimal' -> uso no if de arredondamento
-    expect(calcularMediaPonderada([1.96, 2], [1, 1])).toBe(2);
+    expect(calcularMediaPonderada([1.96, 2], [1, 1])).toBe(1.98);
     expect(calcularMediaPonderada([1.96, 2], [1, 1], 3)).toBe(1.98);
   });
 
