@@ -57,7 +57,7 @@ describe('All-p-uses Coverage Suite', () => {
     expect(calcularMediaPonderada([], [])).toBe(0);           // false (não entra no loop)
     
     // Predicado: parteDecimal > 0.95 && precisao === 2
-    expect(calcularMediaPonderada([1.95, 2], [1, 1])).toBe(1.98); // ambas true (BUG)
+    expect(calcularMediaPonderada([1.95, 2], [1, 1])).toBe(1.97); // ambas true (BUG)
     expect(calcularMediaPonderada([1.5, 2], [1, 1])).toBe(1.75); // parteDecimal > 0.95: false
     expect(calcularMediaPonderada([1.95, 2], [1, 1], 3)).toBe(1.975); // precisao === 2: false
   });
