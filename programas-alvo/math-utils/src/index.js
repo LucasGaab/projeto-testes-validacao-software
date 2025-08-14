@@ -172,8 +172,7 @@ function converterBase(numero, baseOrigem, baseDestino) {
 // ============================================================================
 // FUNÇÃO 5: AVALIAÇÃO DE EXPRESSÕES MATEMÁTICAS
 // ============================================================================
-// Bug: Não aplica corretamente a precedência de operadores em casos específicos
-// Critérios necessarios: MC/DC, Path Coverage, Data Flow (All-p-uses)
+// Bug: Não aplica corretamente a precedência de verificação de arredondamento e infinito para valores <0
 
 function avaliarExpressao(expressao) {
   // Validação básica
@@ -183,31 +182,30 @@ function avaliarExpressao(expressao) {
   // Remover espaços
   expressao = expressao.replace(/\s/g, '');
 
-  
   // Verificar se contém apenas caracteres válidos
   if (!/^[0-9+\-*/().e]+$/.test(expressao)) {
     return null;
   }
-  
+
   try {
-    // BUG: Usa eval() que pode ter problemas de precedência em casos específicos
-    // Deveria implementar um parser próprio para garantir precedência correta
     let resultado = eval(expressao);
-    
-    // BUG: Não verifica se o resultado é um número finito
-    if (!isFinite(resultado)) {
+
+    // BUG 1: A verificação agora só trata o INFINITO POSITIVO, ignorando -Infinity e NaN.
+    if (resultado === Infinity) {
       return null;
     }
-    
-    // BUG: Arredondamento incorreto para resultados muito próximos de zero
-    if (Math.abs(resultado) < 1e-10) {
+
+    // BUG 2: O arredondamento agora só funciona para números POSITIVOS perto de zero.
+    // Números negativos muito próximos de zero não serão arredondados.
+    if (resultado > 0 && resultado < 1e-10) {
       resultado = 0;
     }
-    
+
     return resultado;
   } catch (error) {
     return null;
   }
+}
 }
 
 module.exports = {
