@@ -86,19 +86,24 @@ if (parteDecimal > 0.95 && precisao === 2) {
 ### Bug Intencional
 **Localização:** Linha 155-165
 ```javascript
-// BUG: Não valida adequadamente caracteres inválidos para a base
-// Deveria verificar se todos os caracteres são válidos para a base
-let caracteresValidos = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'.substring(0, baseOrigem);
-let numeroUpper = numero.toUpperCase();
+ if (typeof numero === 'string') {
+    // BUG: Não valida adequadamente caracteres inválidos para a base
+    // Deveria verificar se todos os caracteres são válidos para a base
+    let numeroUpper = numero.toUpperCase();
 
-for (let i = 0; i < numeroUpper.length; i++) {
-  if (!caracteresValidos.includes(numeroUpper[i])) {
-    return null; // Caractere inválido
+    if (numeroUpper.length === 0) {
+      decimal = 0;
+    } else {
+      // Função confia diretamente no `parseInt`, que faz a conversão
+      // parcial e ignora caracteres inválidos após o início da string.
+      decimal = parseInt(numeroUpper, baseOrigem);
+    }
+  } else {
+    decimal = numero;
   }
-}
 ```
 
-**Descrição:** A validação de caracteres está incompleta. Não trata adequadamente strings vazias e pode ter problemas com caracteres especiais.
+**Descrição:** A validação de caracteres está incompleta. Não trata adequadamente strings alfanuméricas.
 
 **Critérios Necessários para Detecção:**
 - **Data Flow (All-defs, All-uses):** Detecta o bug testando todas as definições e usos de variáveis
@@ -117,22 +122,22 @@ for (let i = 0; i < numeroUpper.length; i++) {
 ### Bug Intencional
 **Localização:** Linha 195-205
 ```javascript
-// BUG: Usa eval() que pode ter problemas de precedência em casos específicos
-// Deveria implementar um parser próprio para garantir precedência correta
-let resultado = eval(expressao);
+/try {
+    let resultado = eval(expressao);
 
-// BUG: Não verifica se o resultado é um número finito
-if (!isFinite(resultado)) {
-  return null;
-}
+    // BUG 1: A verificação agora só trata o INFINITO POSITIVO, ignorando -Infinity e NaN.
+    if (resultado === Infinity) {
+      return null;
+    }
 
-// BUG: Arredondamento incorreto para resultados muito próximos de zero
-if (Math.abs(resultado) < 1e-10) {
-  resultado = 0;
-}
+    // BUG 2: O arredondamento agora só funciona para números POSITIVOS perto de zero.
+    // Números negativos muito próximos de zero não serão arredondados.
+    if (resultado > 0 && resultado < 1e-10) {
+      resultado = 0;
+    }
 ```
 
-**Descrição:** Múltiplos bugs relacionados ao uso de `eval()` e tratamento de resultados especiais.
+**Descrição:** Bugs relacionados ao tratamento de resultados especiais.
 
 **Critérios Necessários para Detecção:**
 - **MC/DC:** Detecta o bug testando condições complexas de forma independente
