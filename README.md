@@ -9,7 +9,7 @@ O experimento foi expandido para incluir cinco funções matemáticas com difere
 2. Média ponderada (arredondamento)
 3. Classificação de números (perfeitos/abundantes/deficientes)
 4. Conversão entre sistemas numéricos (validação de entrada)
-5. Avaliação de expressões matemáticas (precedência de operadores)
+5. Resultado de expressões matemáticas (outputs especiais)
 
 ## 2. Hipóteses de Pesquisa Ampliadas
 
