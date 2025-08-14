@@ -2,190 +2,92 @@
 
 ## Visão Geral
 
-Este documento descreve os bugs intencionais implementados nas funções matemáticas e os critérios de cobertura necessários para detectá-los. O objetivo é demonstrar como diferentes critérios de cobertura têm diferentes capacidades de detecção de falhas.
+Este documento descreve os bugs intencionais implementados nas funções matemáticas e os critérios de cobertura estrutural necessários para detectá-los. O objetivo é demonstrar como diferentes critérios têm distintas capacidades na detecção de falhas.
 
-## Função 1: calcularFatorial(n)
-
-### Bug Intencional
-**Localização:** Linha 25-27
-```javascript
-if (resultado > Number.MAX_SAFE_INTEGER / i) {
-  return -1; // Overflow
-}
-```
-
-**Descrição:** A verificação de overflow está incorreta. Deveria verificar se `resultado * i > Number.MAX_SAFE_INTEGER` antes da multiplicação, mas verifica se `resultado > Number.MAX_SAFE_INTEGER / i`. Isso pode causar falsos positivos ou negativos.
-
-**Critérios Necessários para Detecção:**
-- **Branch Coverage:** Detecta o bug quando testa casos que causam overflow
-- **MC/DC:** Detecta o bug testando a condição `resultado > Number.MAX_SAFE_INTEGER / i` de forma independente
-- **Data Flow (All-uses):** Detecta o bug testando todos os usos da variável `resultado`
-
-**Casos de Teste que Detectam o Bug:**
-- `calcularFatorial(18)` → retorna -1 (overflow detectado)
-- `calcularFatorial(17)` → retorna 355687428096000 (sem overflow)
-
-**Casos de Teste que NÃO Detectam o Bug:**
-- `calcularFatorial(5)` → retorna 120 (não testa overflow)
-- `calcularFatorial(0)` → retorna 1 (não testa overflow)
-
-## Função 2: calcularMediaPonderada(valores, pesos, precisao)
+## Função 1: `calcularFatorial(n)`
 
 ### Bug Intencional
-**Localização:** Linha 75-79
-```javascript
-if (parteDecimal > 0.95 && precisao === 2) {
-  // BUG: Deveria arredondar para cima, mas arredonda para baixo
-  media = Math.floor(media) + 1;
-} else {
-  media = Math.round(media * Math.pow(10, precisao)) / Math.pow(10, precisao);
-}
-```
-
-**Descrição:** O arredondamento para valores muito próximos de inteiros está incorreto. Deveria usar `Math.round()` para arredondar corretamente, mas usa `Math.floor() + 1`.
+**Localização:** `index (4).js`
+**Descrição:** A verificação de overflow não previne a multiplicação que causa o estouro do limite do número seguro (`Number.MAX_SAFE_INTEGER`). O bug é que o `resultado` já pode ter se tornado `Infinity` na operação `resultado = resultado * i`, antes mesmo do `if` de verificação ser alcançado.
 
 **Critérios Necessários para Detecção:**
-- **Branch Coverage:** Detecta o bug testando o caminho `parteDecimal > 0.95 && precisao === 2`
-- **MC/DC:** Detecta o bug testando as condições `parteDecimal > 0.95` e `precisao === 2` independentemente
-- **Data Flow (All-c-uses):** Detecta o bug testando todos os usos computacionais de `parteDecimal` e `precisao`
+- **Statement Coverage** e todos os critérios superiores.
 
-**Casos de Teste que Detectam o Bug:**
-- `calcularMediaPonderada([1.95, 2], [1, 1])` → retorna 2 (bug ativado)
-- `calcularMediaPonderada([1.5, 2], [1, 1])` → retorna 1.75 (bug não ativado)
+**Caso de Teste que Detecta o Bug:**
+- `expect(calcularFatorial(21)).toBe(-1)`: Este teste falha porque a função, ao tentar multiplicar um número já imenso, retorna `Infinity`, que satisfaz a condição de overflow e leva ao retorno de `-1`, conforme esperado pelo oráculo do teste.
 
 **Casos de Teste que NÃO Detectam o Bug:**
-- `calcularMediaPonderada([1, 2], [1, 1])` → retorna 1.5 (não testa arredondamento)
+- `expect(calcularFatorial(5)).toBe(120)`: Não atinge o limite de overflow.
 
-## Função 3: classificarNumero(numero)
+## Função 2: `calcularMediaPonderada(valores, pesos, precisao)`
 
 ### Bug Intencional
-**Localização:** Linha 125-127
-```javascript
-} else if (somaDivisores >= numero) {
-  // BUG: Deveria ser > numero, não >=
-  return 'abundante';
-}
-```
-
-**Descrição:** A condição para números abundantes está incorreta. Deveria ser `somaDivisores > numero`, mas usa `somaDivisores >= numero`. Isso classifica incorretamente números perfeitos como abundantes.
+**Localização:** `index (4).js`
+**Descrição:** A lógica de arredondamento para cima é acionada por uma condição (`parteDecimal > 0.95 && precisao === 2`) que não trata corretamente todos os casos próximos a um inteiro, levando a arredondamentos incorretos.
 
 **Critérios Necessários para Detecção:**
-- **Branch Coverage:** Detecta o bug testando números que são perfeitos mas são classificados como abundantes
-- **MC/DC:** Detecta o bug testando a condição `somaDivisores >= numero` de forma independente
-- **Path Coverage:** Detecta o bug testando o caminho específico que leva à classificação incorreta
+- **Branch Coverage** e todos os critérios superiores.
 
-**Casos de Teste que Detectam o Bug:**
-- `classificarNumero(6)` → retorna 'perfeito' (correto)
-- `classificarNumero(12)` → retorna 'abundante' (bug: deveria ser 'abundante' mas por motivo errado)
+**Caso de Teste que Detecta o Bug:**
+- `expect(calcularMediaPonderada([1.96, 2], [1, 1])).toBe(1.98)`: Este teste, presente a partir da suíte de Branch Coverage, expõe a falha na lógica de arredondamento.
 
-**Casos de Teste que NÃO Detectam o Bug:**
-- `classificarNumero(8)` → retorna 'deficiente' (não testa a condição bugada)
+**Caso de Teste que NÃO Detecta o Bug:**
+- `expect(calcularMediaPonderada([1, 2], [1, 1])).toBe(1.5)`: Não aciona a lógica de arredondamento condicional.
 
-## Função 4: converterBase(numero, baseOrigem, baseDestino)
+## Função 3: `classificarNumero(numero)`
 
 ### Bug Intencional
-**Localização:** Linha 155-165
-```javascript
- if (typeof numero === 'string') {
-    // BUG: Não valida adequadamente caracteres inválidos para a base
-    // Deveria verificar se todos os caracteres são válidos para a base
-    let numeroUpper = numero.toUpperCase();
-
-    if (numeroUpper.length === 0) {
-      decimal = 0;
-    } else {
-      // Função confia diretamente no `parseInt`, que faz a conversão
-      // parcial e ignora caracteres inválidos após o início da string.
-      decimal = parseInt(numeroUpper, baseOrigem);
-    }
-  } else {
-    decimal = numero;
-  }
-```
-
-**Descrição:** A validação de caracteres está incompleta. Não trata adequadamente strings alfanuméricas.
+**Localização:** `index (4).js`
+**Descrição:** A condição para números abundantes usa o operador incorreto (`>=` em vez de `>`). Isso faz com que números perfeitos (onde `somaDivisores === numero`) sejam incorretamente classificados como abundantes.
 
 **Critérios Necessários para Detecção:**
-- **Data Flow (All-defs, All-uses):** Detecta o bug testando todas as definições e usos de variáveis
-- **Branch Coverage:** Detecta o bug testando casos extremos como strings vazias
-- **Path Coverage:** Detecta o bug testando caminhos específicos de validação
+- **Path Coverage**, **MC/DC**, e **All-Uses**.
 
-**Casos de Teste que Detectam o Bug:**
-- `converterBase('G', 16, 10)` → retorna null (caractere inválido)
-- `converterBase('', 16, 10)` → retorna '0' (string vazia tratada)
+**Caso de Teste que Detecta o Bug:**
+- `expect(classificarNumero(6)).toBe('perfeito')`: Este teste falha porque a função com bug retorna `'abundante'`. Apenas critérios que forçam este cenário específico detectam a falha.
 
-**Casos de Teste que NÃO Detectam o Bug:**
-- `converterBase('FF', 16, 10)` → retorna '255' (conversão válida)
+**Caso de Teste que NÃO Detecta o Bug:**
+- `expect(classificarNumero(12)).toBe('abundante')`: Este teste passa em todas as suítes, pois 12 é de fato abundante. Ele não expõe a falha lógica da função.
 
-## Função 5: avaliarExpressao(expressao)
+## Função 4: `converterBase(numero, baseOrigem, baseDestino)`
 
 ### Bug Intencional
-**Localização:** Linha 195-205
-```javascript
-/try {
-    let resultado = eval(expressao);
-
-    // BUG 1: A verificação agora só trata o INFINITO POSITIVO, ignorando -Infinity e NaN.
-    if (resultado === Infinity) {
-      return null;
-    }
-
-    // BUG 2: O arredondamento agora só funciona para números POSITIVOS perto de zero.
-    // Números negativos muito próximos de zero não serão arredondados.
-    if (resultado > 0 && resultado < 1e-10) {
-      resultado = 0;
-    }
-```
-
-**Descrição:** Bugs relacionados ao tratamento de resultados especiais.
+**Localização:** `index (4).js`
+**Descrição:** A função confia diretamente no `parseInt`, que faz a conversão parcial de uma string e ignora caracteres inválidos após o início, em vez de invalidar a entrada inteira como deveria.
 
 **Critérios Necessários para Detecção:**
-- **MC/DC:** Detecta o bug testando condições complexas de forma independente
-- **Path Coverage:** Detecta o bug testando caminhos específicos de avaliação
-- **Data Flow (All-p-uses):** Detecta o bug testando todos os usos predicativos de variáveis
+- **Branch Coverage** e todos os critérios superiores.
 
-**Casos de Teste que Detectam o Bug:**
-- `avaliarExpressao('2/0')` → retorna null (divisão por zero)
-- `avaliarExpressao('1e-11')` → retorna 0 (muito próximo de zero)
+**Caso de Teste que Detecta o Bug:**
+- `expect(converterBase('G', 16, 10)).toBe(null)`: Este teste para um caractere inválido na base 16 expõe a falha.
 
-**Casos de Teste que NÃO Detectam o Bug:**
-- `avaliarExpressao('2+3')` → retorna 5 (expressão simples)
+**Caso de Teste que NÃO Detecta o Bug:**
+- `expect(converterBase('FF', 16, 10)).toBe('255')`: A conversão é válida e o bug não é acionado.
+
+## Função 5: `avaliarExpressao(expressao)`
+
+### Bugs Intencionais
+**Localização:** `index (4).js`
+**Descrição:** Existem dois bugs relacionados ao tratamento de casos especiais:
+1.  A verificação de infinito trata apenas o `Infinity` positivo, ignorando `-Infinity`.
+2.  O arredondamento para zero funciona apenas para números positivos, ignorando resultados negativos muito próximos de zero.
+
+**Critérios Necessários para Detecção:**
+- **Branch Coverage** e todos os critérios superiores.
+
+**Casos de Teste que Detectam os Bugs:**
+- **Bug 1:** `expect(avaliarExpressao('-1/0')).toBe(null)`. A função com bug retorna `-Infinity`, causando a falha do teste.
+- **Bug 2:** `expect(avaliarExpressao('0.2 - 0.3')).toBe(0)`. A função com bug retorna `-0.1`, causando a falha do teste.
+
+**Caso de Teste que NÃO Detecta o Bug:**
+- `expect(avaliarExpressao('2+3')).toBe(5)`: Expressão simples que não aciona nenhuma das lógicas defeituosas.
 
 ## Análise de Custo vs. Eficácia
 
-### Statement Coverage
-- **Custo:** Baixo (5-10 testes por função)
-- **Eficácia:** Baixa (não detecta nenhum dos bugs)
-- **Limitação:** Apenas executa linhas, não testa lógica
-
-### Branch Coverage
-- **Custo:** Médio (10-15 testes por função)
-- **Eficácia:** Média (detecta alguns bugs)
-- **Limitação:** Não testa condições complexas adequadamente
-
-### MC/DC Coverage
-- **Custo:** Alto (15-25 testes por função)
-- **Eficácia:** Alta (detecta a maioria dos bugs)
-- **Vantagem:** Testa condições de forma independente
-
-### Data Flow Coverage
-- **Custo:** Muito Alto (20-30 testes por função)
-- **Eficácia:** Muito Alta (detecta todos os bugs)
-- **Vantagem:** Testa fluxo de dados completo
-
-### Path Coverage
-- **Custo:** Extremamente Alto (30+ testes por função)
-- **Eficácia:** Muito Alta (detecta todos os bugs)
-- **Limitação:** Pode ser impraticável para funções complexas
-
-## Conclusões
-
-1. **Critérios mais rigorosos detectam mais bugs:** MC/DC e Data Flow detectam significativamente mais bugs que Statement e Branch Coverage.
-
-2. **Custo aumenta com rigor:** Critérios mais rigorosos requerem mais casos de teste.
-
-3. **Ponto ótimo:** MC/DC oferece bom equilíbrio entre custo e eficácia para a maioria dos bugs.
-
-4. **Bugs específicos:** Alguns bugs só são detectados por critérios específicos (ex: Data Flow para bugs de fluxo de dados).
-
-5. **Contexto importa:** A escolha do critério deve considerar o tipo de aplicação e recursos disponíveis. 
+| Critério | Custo (Nº de Testes) | Eficácia (Bugs Detectados) | Análise |
+| :--- | :--- | :--- | :--- |
+| **Statement** | 25 | 1 de 6 | **Baixa.** Apenas executa linhas, não testa a lógica de controle de forma eficaz. |
+| **Branch** | 33 | 4 de 6 | **Média-Alta.** Forçar a exploração de ramos `true`/`false` revela significativamente mais bugs. |
+| **MC/DC** | 31 | **6 de 6** | **Muito Alta.** Testa o impacto independente de cada condição, sendo muito eficaz para bugs lógicos. |
+| **All-Uses** | 33 | **6 de 6** | **Muito Alta.** Rastrear o fluxo de dados completo é poderoso para detectar anomalias de dados e lógicas. |
+| **Path** | 38 | **6 de 6** | **Muito Alta.** O mais rigoroso no fluxo de controle, mas também o mais custoso em número de testes. |
