@@ -206,7 +206,6 @@ function avaliarExpressao(expressao) {
     return null;
   }
 }
-}
 
 module.exports = {
   calcularFatorial,
