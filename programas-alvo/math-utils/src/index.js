@@ -131,8 +131,7 @@ function classificarNumero(numero) {
   }
 }
 
-// ============================================================================
-// FUNÇÃO 4: CONVERSÃO ENTRE SISTEMAS NUMÉRICOS
+// FUNÇÃO 4: CONVERSÃO ENTRE SISTEMAS NUMÉRICOS (COM BUG INTRODUZIDO)
 // ============================================================================
 // Bug: Não valida corretamente entradas hexadecimais com caracteres inválidos
 // Critérios necessários: Data Flow (All-defs, All-uses), Branch Coverage
@@ -142,41 +141,34 @@ function converterBase(numero, baseOrigem, baseDestino) {
   if (baseOrigem < 2 || baseOrigem > 36 || baseDestino < 2 || baseDestino > 36) {
     return null;
   }
-  
+
   // Converter para decimal primeiro
   let decimal;
-  
+
   if (typeof numero === 'string') {
     // BUG: Não valida adequadamente caracteres inválidos para a base
     // Deveria verificar se todos os caracteres são válidos para a base
-    let caracteresValidos = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'.substring(0, baseOrigem);
     let numeroUpper = numero.toUpperCase();
-    
-    // Tratar string vazia
+
     if (numeroUpper.length === 0) {
       decimal = 0;
     } else {
-      for (let i = 0; i < numeroUpper.length; i++) {
-        if (!caracteresValidos.includes(numeroUpper[i])) {
-          return null; // Caractere inválido
-        }
-      }
-      
+      // Função confia diretamente no `parseInt`, que faz a conversão
+      // parcial e ignora caracteres inválidos após o início da string.
       decimal = parseInt(numeroUpper, baseOrigem);
     }
   } else {
     decimal = numero;
   }
-  
-  
-  // Converter para a base de destino
-  if (baseDestino === 10) {
-    return decimal.toString();
-  } else {
-    return decimal.toString(baseDestino).toUpperCase();
-  }
-}
 
+  // Se parseInt não conseguir converter nada (ex: "Z", 10), ele retorna NaN.
+  if (isNaN(decimal)) {
+      return null;
+  }
+
+  // Converter de decimal para a base de destino
+  return decimal.toString(baseDestino).toUpperCase();
+}
 // ============================================================================
 // FUNÇÃO 5: AVALIAÇÃO DE EXPRESSÕES MATEMÁTICAS
 // ============================================================================
