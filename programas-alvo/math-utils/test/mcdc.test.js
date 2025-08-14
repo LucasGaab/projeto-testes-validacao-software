@@ -21,7 +21,7 @@ describe('MCDC Coverage Suite (Corrigida)', () => {
     // Condições: A=!valores, B=!pesos, C=valores.length !== pesos.length
     // Par para A: { (V,F,F)->V }, { (F,F,F)->F }
     expect(calcularMediaPonderada(null, [1])).toBe(null); // A=V
-    expect(calcularMediaPonderada([1], [1])).toBe(1.5);    // A=F, B=F, C=F (par com o de cima)
+    expect(calcularMediaPonderada([1], [1])).toBe(1);    // A=F, B=F, C=F (par com o de cima)
     // Par para B: { (F,V,F)->V }, { (F,F,F)->F }
     expect(calcularMediaPonderada([1], null)).toBe(null); // B=V
     // Par para C: { (F,F,V)->V }, { (F,F,F)->F }
