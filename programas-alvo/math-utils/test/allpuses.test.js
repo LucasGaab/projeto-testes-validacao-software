@@ -125,21 +125,25 @@ describe('All-p-uses Coverage Suite', () => {
     expect(converterBase('10', 10, 2)).toBe('1010'); // false
   });
 
-  test('should cover all predicate uses in avaliarExpressao', () => {
+ test('should cover all predicate uses in avaliarExpressao', () => {
     // Predicado: !expressao || expressao.length === 0
-    expect(avaliarExpressao('')).toBe(null);         // expressao vazia: true
-    expect(avaliarExpressao('2+3')).toBe(5);         // ambas false
-    
-    // Predicado: /^[0-9+\-*/().]+$/.test(expressao)
-    expect(avaliarExpressao('2+3a')).toBe(null);     // false
-    expect(avaliarExpressao('2+3')).toBe(5);         // true
-    
-    // Predicado: !isFinite(resultado)
-    expect(avaliarExpressao('2/0')).toBe(null);      // true
-    expect(avaliarExpressao('2+3')).toBe(5);         // false
-    
-    // Predicado: Math.abs(resultado) < 1e-10
-    expect(avaliarExpressao('1e-11')).toBe(0);       // true
-    expect(avaliarExpressao('0.1')).toBe(0.1);       // false
-  });
-}); 
+    expect(avaliarExpressao('')).toBe(null);
+    expect(avaliarExpressao('2+3')).toBe(5);
+
+    // Predicado: /^[0-9+\-*/().e]+$/.test(expressao)
+    expect(avaliarExpressao('2+3a')).toBe(null);
+    expect(avaliarExpressao('2+3')).toBe(5);
+
+    // Predicado: resultado === Infinity
+    expect(avaliarExpressao('1/0')).toBe(null);      // True
+    // NOVO: Teste para o p-use com -Infinity (CAPTURA O BUG 1)
+    // O esperado é null, mas a função com bug retornará -Infinity.
+    expect(avaliarExpressao('-1/0')).toBe(null);     // False (com valor não-finito)
+
+    // Predicado: resultado > 0 && resultado < 1e-10
+    expect(avaliarExpressao('1e-11')).toBe(0);       // True
+    expect(avaliarExpressao('0.1')).toBe(0.1);       // False (por ser número maior)
+    // NOVO: Teste para o p-use com resultado negativo (CAPTURA O BUG 2)
+    // O esperado é 0, mas a função com bug retornará um número pequeno e negativo.
+    expect(avaliarExpressao('0.2 - 0.3')).toBe(0);   // False (por ser número negativo)
+});
