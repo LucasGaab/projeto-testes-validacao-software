@@ -78,11 +78,18 @@ describe('Branch Coverage Suite (Corrigida)', () => {
     expect(avaliarExpressao('2a+3')).toBe(null);
     // try-catch -> catch
     expect(avaliarExpressao('2+')).toBe(null);
-    // if (!isFinite) -> true
-    expect(avaliarExpressao('2/0')).toBe(null);
-    // if (Math.abs(resultado) < 1e-10) -> true
+    // if (resultado === Infinity) -> true
+    expect(avaliarExpressao('1/0')).toBe(null);
+    // if (resultado > 0 && resultado < 1e-10) -> true
     expect(avaliarExpressao('1e-11')).toBe(0);
-    // if (Math.abs(resultado) < 1e-10) -> false
+    // if (resultado > 0 && resultado < 1e-10) -> false (por ser um número maior)
     expect(avaliarExpressao('0.1')).toBe(0.1);
-  });
+
+    // NOVO: if (resultado === Infinity) -> false (com número não-finito) (CAPTURA O BUG 1)
+    // O esperado é null, mas a função com bug retornará -Infinity.
+    expect(avaliarExpressao('-1/0')).toBe(null);
+
+    // NOVO: if (resultado > 0 && ...) -> false (por ser um número negativo) (CAPTURA O BUG 2)
+    // O esperado é 0, mas a função com bug retornará um número pequeno e negativo.
+    expect(avaliarExpressao('0.2 - 0.3')).toBe(0);
 });
