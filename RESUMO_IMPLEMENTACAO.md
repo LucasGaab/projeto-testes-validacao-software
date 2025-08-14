@@ -1,94 +1,74 @@
-# Resumo da Implementação: Funções Matemáticas Complexas com Bugs Intencionais
+# Resumo da Implementação
 
-## Funções Implementadas
+## Funções Implementadas e Bugs
 
 ### 1. `calcularFatorial(n)`
-**Complexidade:** Média-Alta
-- Múltiplas validações de entrada
-- Loop com condição de parada
-- Verificação de overflow
-- **Bug:** Verificação de overflow que não previne a multiplicação que causa o estouro do limite do número seguro.
+- **Bug:** Verificação de overflow tardia.
+- **Status da Detecção:** **NÃO DETECTADO**. O oráculo do teste (`.toBe(-1)`) validou o comportamento da função com bug, mascarando a falha.
 
 ### 2. `calcularMediaPonderada(valores, pesos, precisao)`
-**Complexidade:** Alta
-- Validações de arrays e tipos
-- Múltiplos loops
-- Lógica condicional para arredondamento
-- **Bug:** A lógica de arredondamento para cima é acionada por uma condição que não trata corretamente todos os casos próximos a um inteiro.
+- **Bug:** Lógica de arredondamento incorreta.
+- **Status da Detecção:** **DETECTADO POR TODOS OS CRITÉRIOS**. A falha era tão evidente que qualquer teste que executasse a linha defeituosa a encontrava.
 
 ### 3. `classificarNumero(numero)`
-**Complexidade:** Média
-- Cálculo de divisores próprios
-- Lógica de classificação matemática
-- **Bug:** Condição incorreta para números abundantes (`>=` em vez de `>`), o que faz com que números perfeitos sejam classificados incorretamente como abundantes.
+- **Bug:** Condição incorreta (`>=` vs `>`) para números abundantes.
+- **Status da Detecção:** **NÃO DETECTADO**. O bug na declaração `else if` se mostrou inalcançável, pois a condição `if` anterior para números perfeitos sempre era satisfeita primeiro.
 
 ### 4. `converterBase(numero, baseOrigem, baseDestino)`
-**Complexidade:** Alta
-- Validação de bases numéricas
-- Conversão entre sistemas numéricos
-- **Bug:** A função confia no `parseInt`, que ignora caracteres inválidos após o início de uma string, em vez de invalidar a entrada inteira.
+- **Bug:** Validação de caracteres inválidos via `parseInt` era falha.
+- **Status da Detecção:** **NÃO DETECTADO**. Os testes cobriram apenas o caso de falha total (`'G'`), que a função tratava corretamente. O bug de falha parcial (ex: `'1A2G'`) não foi testado, e o oráculo para o teste existente mascarou a falha.
 
 ### 5. `avaliarExpressao(expressao)`
-**Complexidade:** Média-Alta
-- Validação de expressões matemáticas via regex
-- Uso de `eval()` com tratamento de erro
-- **Bugs:** Dois bugs relacionados ao tratamento de casos especiais:
-    1. A verificação de infinito trata apenas `Infinity` positivo, ignorando `-Infinity`.
-    2. O arredondamento para zero funciona apenas para números positivos, ignorando resultados negativos muito próximos de zero.
+- **Bugs:**
+    1.  Não trata `-Infinity`.
+    2.  Não trata arredondamento de negativos.
+- **Status da Detecção:** Apenas o **bug do `-Infinity`** foi **DETECTADO**. O segundo bug não foi capturado por nenhuma suíte.
 
-## Suítes de Teste Criadas e Avaliadas
+---
 
-| Suíte de Teste | Custo Total (Nº de Testes) | Eficácia (Bugs Detectados) | Análise de Eficácia |
+## Suítes de Teste: Análise Revisada de Custo e Eficácia
+
+| Suíte de Teste | Custo Total (Nº de Testes) | Eficácia (Bugs Detectados) | Análise de Eficácia Real |
 | :--- | :--- | :--- | :--- |
-| **Statement Coverage** | 25 | 1 de 6 | **Baixa.** Detectou apenas o bug de overflow em `calcularFatorial`. Falhou em todos os outros, demonstrando ser um critério superficial. |
-| **Branch Coverage** | 33 | 4 de 6 | **Média-Alta.** Um salto significativo. Detectou o overflow em `fatorial`, os dois bugs em `avaliarExpressao`, e o bug de arredondamento em `mediaPonderada`. Falhou em `classificarNumero` e `converterBase`. |
-| **Path Coverage** | 38 | **6 de 6** | **Muito Alta.** Detectou todos os bugs. A necessidade de cobrir mais caminhos forçou a criação de testes que revelaram as falhas em `classificarNumero` e `converterBase`. |
-| **MC/DC Coverage** | 31 | **6 de 6** | **Muito Alta.** Detectou todos os bugs. A análise rigorosa das condições booleanas forçou testes específicos que revelaram todas as falhas, com um custo ligeiramente menor que o Path Coverage. |
-| **All-Uses Coverage** | 33 | **6 de 6** | **Muito Alta.** Detectou todos os bugs. Rastrear o ciclo de vida das variáveis (definição-uso) expôs todas as anomalias, incluindo a falha de validação em `converterBase`. |
+| **Statement Coverage** | 25 | 1 de 6 | **Muito Baixa.** Detectou apenas o bug óbvio e onipresente em `mediaPonderada`. Mostrou-se um critério ineficaz e superficial. |
+| **Branch Coverage** | 33 | 2 de 6 | **Baixa.** Representou o maior salto de eficácia. Além do bug em `mediaPonderada`, foi o critério mais simples a detectar o bug do `-Infinity` em `avaliarExpressao`. |
+| **MC/DC Coverage** | 31 | 2 de 6 | **Baixa.** Apesar de seu rigor teórico, não ofereceu vantagem prática sobre o Branch Coverage, detectando os mesmos 2 bugs. |
+| **All-Uses Coverage** | 33 | 2 de 6 | **Baixa.** Similar ao MC/DC, o foco no fluxo de dados não foi capaz de revelar falhas adicionais que o Branch Coverage já não tivesse encontrado. |
+| **Path Coverage** | 38 | 2 de 6 | **Baixa.** Foi o critério mais custoso em número de testes, mas não trouxe nenhum benefício adicional na detecção de falhas em comparação com o Branch Coverage. |
 
-## Bugs Intencionais e Detecção
+---
 
-### 1. Bug de Overflow (calcularFatorial)
-- **Tipo:** Erro de limite (boundary).
-- **Detecção:** **Statement Coverage** e todos os critérios superiores.
-- **Exemplo que Detecta:** `expect(calcularFatorial(21)).toBe(-1)`.
+## Bugs Intencionais e Detecção (Conforme Resultados)
 
-### 2. Bug de Arredondamento (calcularMediaPonderada)
+### 1. Bug de Arredondamento (`calcularMediaPonderada`)
 - **Tipo:** Erro de lógica condicional.
-- **Detecção:** **Branch Coverage** e todos os critérios superiores.
-- **Exemplo que Detecta:** `expect(calcularMediaPonderada([1.96, 2], [1, 1])).toBe(1.98)`.
+- **Detecção:** **Statement Coverage** e todos os critérios superiores.
+- **Exemplo que Detecta:** `expect(calcularMediaPonderada([1.96, 2], [1, 1])).toBe(1.98)` (Falha: retorna `2`).
 
-### 3. Bug de Classificação (classificarNumero)
-- **Tipo:** Erro de operador relacional.
-- **Detecção:** **Path Coverage**, **MC/DC** e **All-Uses**.
-- **Exemplo que Detecta:** `expect(classificarNumero(6)).toBe('perfeito')`. A função com bug retorna 'abundante', causando a falha do teste.
-
-### 4. Bug de Validação (converterBase)
-- **Tipo:** Erro de fluxo de dados/validação de entrada.
-- **Detecção:** **Branch Coverage** e todos os critérios superiores.
-- **Exemplo que Detecta:** `expect(converterBase('G', 16, 10)).toBe(null)`.
-
-### 5. Bugs de Avaliação (avaliarExpressao)
+### 2. Bug de Avaliação `-Infinity` (`avaliarExpressao`)
 - **Tipo:** Erro de tratamento de casos especiais.
 - **Detecção:** **Branch Coverage** e todos os critérios superiores.
-- **Exemplos que Detectam:**
-    - Bug 1 (-Infinity): `expect(avaliarExpressao('-1/0')).toBe(null)`.
-    - Bug 2 (Negativo ~0): `expect(avaliarExpressao('0.2 - 0.3')).toBe(0)`.
+- **Exemplo que Detecta:** `expect(avaliarExpressao('-1/0')).toBe(null)` (Falha: retorna `-Infinity`).
 
-## Resultados do Experimento
+---
+
+## Resultados do Experimento (Análise Real)
 
 ### Métricas Coletadas
-- **Statement Coverage:** Atingiu 100% de cobertura de instrução com 25 testes, mas detectou apenas 1 dos 6 bugs.
-- **Branch Coverage:** Atingiu 100% de cobertura de desvio com 33 testes, detectando 4 dos 6 bugs.
-- **MC/DC e All-Uses:** Com 31 e 33 testes respectivamente, detectaram todos os 6 bugs, mostrando alta eficácia.
-- **Path Coverage:** Foi o mais custoso (38 testes), mas também detectou todos os 6 bugs.
+- Apenas 2 dos 6 bugs intencionais foram de fato detectados por qualquer suíte.
+- O bug em `mediaPonderada` foi detectado por todos.
+- O bug de `-Infinity` em `avaliarExpressao` foi detectado apenas a partir do Branch Coverage.
+- Os bugs em `calcularFatorial`, `classificarNumero` e `converterBase` não foram detectados por **nenhum** critério.
 
 ### Validação das Hipóteses
-- **H1 (Rigor vs. Eficácia):** **Validada.** Houve uma clara correlação positiva. Critérios mais rigorosos como MC/DC e All-Uses foram significativamente mais eficazes (100% de detecção) do que o Statement Coverage (16.7% de detecção).
-- **H2 (Custo vs. Rigor):** **Validada.** O custo, medido pelo número de testes necessários para atingir 100% de cobertura, aumentou com o rigor do critério (de 25 testes para Statement até 38 para Path).
-- **H3 (Custo-Benefício):** **Validada.** O critério de Branch Coverage apresentou um grande salto de eficácia com um aumento moderado de custo. Os critérios MC/DC e All-Uses mostraram o melhor equilíbrio, alcançando eficácia máxima com um custo menor que o Path Coverage.
+- **H1 (Rigor vs. Eficácia):** **Parcialmente Validada.** Houve um pequeno aumento de eficácia ao passar de Statement para Branch (de 1 para 2 bugs detectados). No entanto, a partir do Branch, nenhum critério mais rigoroso (MC/DC, Path, All-Uses) conseguiu detectar falhas adicionais.
+- **H2 (Custo vs. Rigor):** **Validada.** O custo em número de testes aumentou com o rigor (de 25 para Statement até 38 para Path), mas esse aumento de custo não se traduziu em maior eficácia após o nível de Branch.
+- **H3 (Custo-Benefício):** **Validada, com ressalvas.** O **Branch Coverage** apresentou o melhor custo-benefício de longe, pois foi o ponto de maior ganho de eficácia. Investir em critérios mais rigorosos, neste cenário, não trouxe retorno.
 
-## Conclusões
-1.  **Sucesso na Implementação:** Todas as funções foram implementadas com sucesso e testadas.
-2.  **Bugs Efetivos:** Os bugs intencionais são sutis e realistas, adequados para testar diferentes critérios.
-3.  **Diferenciação Clara de Critérios:** O experimento demonstra com dados que a escolha do critério de cobertura impacta diretamente a qualidade da suíte de testes e sua capacidade de encontrar falhas.
+---
+
+## Conclusões Revisadas
+1.  **A Qualidade do Oráculo é Suprema:** O experimento demonstrou que a cobertura estrutural é inútil sem um oráculo preciso. Bugs foram executados, mas não detectados porque o comportamento final da função defeituosa satisfez os testes.
+2.  **Bugs Podem Ser Inalcançáveis:** A lógica do código pode impedir que uma linha defeituosa seja acionada de uma maneira que revele a falha (como visto em `classificarNumero`).
+3.  **Branch Coverage é um Ponto de Partida Valioso:** O maior ganho na capacidade de detecção de falhas ocorreu ao se mover do critério mais básico (Statement) para o Branch Coverage.
+4.  **Rigor Nem Sempre Compensa:** Este experimento é um exemplo prático de que, em alguns cenários, o investimento significativo para satisfazer critérios mais complexos como Path ou MC/DC pode não resultar em uma maior detecção de falhas, questionando seu custo-benefício em projetos que não sejam de missão crítica.
