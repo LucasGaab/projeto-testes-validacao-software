@@ -86,5 +86,5 @@ describe('MCDC Coverage Suite (Corrigida)', () => {
     // Par para D: { (V,V)->V }, { (V,F)->F }
     // A primeira linha do par acima ('1e-11') já serve como (V,V)->V
     expect(avaliarExpressao('0.1')).toBe(0.1); // C=V, D=F -> F
-});
+  });
 });
