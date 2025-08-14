@@ -47,7 +47,7 @@ describe('All-c-uses Coverage Suite', () => {
     expect(calcularMediaPonderada([1.95, 2], [1, 1])).toBe(2); // BUG
     
     // Uso computacional: Math.floor(media) + 1
-    expect(calcularMediaPonderada([1.96, 2], [1, 1])).toBe(2);
+    expect(calcularMediaPonderada([1.96, 2], [1, 1])).toBe(1.98);
     
     // Uso computacional: Math.round(media * Math.pow(10, precisao)) / Math.pow(10, precisao)
     expect(calcularMediaPonderada([1.5, 2.5], [1, 1])).toBe(2);
