@@ -92,8 +92,8 @@ O experimento ampliado permitirá analisar:
    - Overflow numérico (Fatorial)
    - Problemas de arredondamento (Média)
    - Lógica condicional (Classificação)
-   - Validação de entrada (Conversão)
-   - Precedência de operadores (Expressões)
+   - Validação de entradas especiais (Conversão)
+   - Resultados especiais de operações (Expressões)
 
 2. **Custo por Critério:**
    - Número de casos de teste necessários
