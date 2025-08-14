@@ -168,10 +168,6 @@ function converterBase(numero, baseOrigem, baseDestino) {
     decimal = numero;
   }
   
-  // BUG: Não verifica se a conversão foi bem-sucedida
-  if (isNaN(decimal)) {
-    return null;
-  }
   
   // Converter para a base de destino
   if (baseDestino === 10) {
