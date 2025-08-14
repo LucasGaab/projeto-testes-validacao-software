@@ -34,7 +34,7 @@ describe('Path Coverage Suite (Corrigida)', () => {
     // Caminho 5: loop entra, peso <= 0
     expect(calcularMediaPonderada([1, 2], [1, 0])).toBe(null);
     // Caminho 6: cálculo normal, arredondamento para cima (BUG)
-    expect(calcularMediaPonderada([1.96, 2], [1, 1])).toBe(2);
+    expect(calcularMediaPonderada([1.96, 2], [1, 1])).toBe(1.98);
     // Caminho 7: cálculo normal, arredondamento padrão
     expect(calcularMediaPonderada([1.5, 2], [1, 1])).toBe(1.75);
     // Caminho 8: cálculo normal, arredondamento com precisão diferente
