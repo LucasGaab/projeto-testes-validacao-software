@@ -34,14 +34,14 @@ Tonho the man, implementei com sucesso um conjunto robusto de funções matemát
 - Conversão entre sistemas numéricos
 - Validação de caracteres por base
 - Tratamento de tipos diferentes
-- **Bug:** Validação incompleta de caracteres e strings vazias
+- **Bug:** Validação incompleta de caracteres alfanúmericos.
 
 ### 5. `avaliarExpressao(expressao)`
 **Complexidade:** Média-Alta
 - Validação de expressões matemáticas
 - Uso de `eval()` com validações
 - Tratamento de casos especiais
-- **Bug:** Múltiplos bugs relacionados ao uso de `eval()` e arredondamento
+- **Bug:** Múltiplos bugs relacionados ao resultados de números infinitos e tratativa de números negativos próximos à 0.
 
 ## Suítes de Teste Criadas
 
