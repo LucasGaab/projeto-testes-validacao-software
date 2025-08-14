@@ -61,7 +61,7 @@ describe('All-Uses Coverage Suite (Corrigida)', () => {
     // Cobre def de 'numeroUpper' -> uso no loop e no 'parseInt'
     // Cobre def de 'decimal' vindo de 'parseInt' -> uso no 'isNaN' e no 'toString'
     expect(converterBase('G', 16, 10)).toBe(null);
-    expect(converterBase('A', 16, 10)).toBe('16');
+    expect(converterBase('A', 16, 10)).toBe('10');
     expect(converterBase('invalid', 10, 2)).toBe(null);
   });
 
