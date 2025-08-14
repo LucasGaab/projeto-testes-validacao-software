@@ -188,13 +188,13 @@ function converterBase(numero, baseOrigem, baseDestino) {
 // Critérios necessarios: MC/DC, Path Coverage, Data Flow (All-p-uses)
 
 function avaliarExpressao(expressao) {
-  // Remover espaços
-  expressao = expressao.replace(/\s/g, '');
-  
   // Validação básica
   if (!expressao || expressao.length === 0) {
     return null;
   }
+  // Remover espaços
+  expressao = expressao.replace(/\s/g, '');
+
   
   // Verificar se contém apenas caracteres válidos
   if (!/^[0-9+\-*/().e]+$/.test(expressao)) {
