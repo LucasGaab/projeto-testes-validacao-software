@@ -52,7 +52,7 @@ describe('Statement Coverage Suite (Corrigida)', () => {
     // Caminho com string vazia
     expect(converterBase('', 10, 2)).toBe('0');
     // Caminho com conversão de número para base 10
-    expect(converterBase('A', 16, 10)).toBe('16');
+    expect(converterBase('A', 16, 10)).toBe('10');
     // Caminho com conversão de número para outra base
     expect(converterBase(10, 10, 2)).toBe('1010');
     // Caminho com NaN
