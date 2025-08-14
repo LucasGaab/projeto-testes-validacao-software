@@ -1,9 +1,5 @@
 # Resumo da Implementação: Funções Matemáticas Complexas com Bugs Intencionais
 
-## Visão Geral
-
-Tonho the man, implementei com sucesso um conjunto robusto de funções matemáticas complexas no projeto `math-utils` que substitui as funções simples originais (`isEven`, `isPrime`) por um conjunto mais desafiador e adequado para testar diferentes critérios de cobertura estrutural.
-
 ## Funções Implementadas
 
 ### 1. `calcularFatorial(n)`
@@ -11,173 +7,88 @@ Tonho the man, implementei com sucesso um conjunto robusto de funções matemát
 - Múltiplas validações de entrada
 - Loop com condição de parada
 - Verificação de overflow
-- **Bug:** Verificação incorreta de overflow (`resultado > Number.MAX_SAFE_INTEGER / i`)
+- **Bug:** Verificação de overflow que não previne a multiplicação que causa o estouro do limite do número seguro.
 
 ### 2. `calcularMediaPonderada(valores, pesos, precisao)`
 **Complexidade:** Alta
 - Validações de arrays e tipos
-- Múltiplos loops aninhados
-- Cálculos matemáticos complexos
+- Múltiplos loops
 - Lógica condicional para arredondamento
-- **Bug:** Arredondamento incorreto para valores próximos de inteiros
+- **Bug:** A lógica de arredondamento para cima é acionada por uma condição que não trata corretamente todos os casos próximos a um inteiro.
 
 ### 3. `classificarNumero(numero)`
 **Complexidade:** Média
 - Cálculo de divisores próprios
 - Lógica de classificação matemática
-- Condições compostas
-- **Bug:** Condição incorreta para números abundantes (`>=` em vez de `>`)
+- **Bug:** Condição incorreta para números abundantes (`>=` em vez de `>`), o que faz com que números perfeitos sejam classificados incorretamente como abundantes.
 
 ### 4. `converterBase(numero, baseOrigem, baseDestino)`
 **Complexidade:** Alta
 - Validação de bases numéricas
 - Conversão entre sistemas numéricos
-- Validação de caracteres por base
-- Tratamento de tipos diferentes
-- **Bug:** Validação incompleta de caracteres alfanúmericos.
+- **Bug:** A função confia no `parseInt`, que ignora caracteres inválidos após o início de uma string, em vez de invalidar a entrada inteira.
 
 ### 5. `avaliarExpressao(expressao)`
 **Complexidade:** Média-Alta
-- Validação de expressões matemáticas
-- Uso de `eval()` com validações
-- Tratamento de casos especiais
-- **Bug:** Múltiplos bugs relacionados ao resultados de números infinitos e tratativa de números negativos próximos à 0.
+- Validação de expressões matemáticas via regex
+- Uso de `eval()` com tratamento de erro
+- **Bugs:** Dois bugs relacionados ao tratamento de casos especiais:
+    1. A verificação de infinito trata apenas `Infinity` positivo, ignorando `-Infinity`.
+    2. O arredondamento para zero funciona apenas para números positivos, ignorando resultados negativos muito próximos de zero.
 
-## Suítes de Teste Criadas
+## Suítes de Teste Criadas e Avaliadas
 
-### 1. Statement Coverage (`statement.test.js`)
-- **5 testes** por função
-- Executa todas as linhas de código
-- **Custo:** Baixo
-- **Eficácia:** Baixa (não detecta bugs sutis)
+| Suíte de Teste | Custo Total (Nº de Testes) | Eficácia (Bugs Detectados) | Análise de Eficácia |
+| :--- | :--- | :--- | :--- |
+| **Statement Coverage** | 25 | 1 de 6 | **Baixa.** Detectou apenas o bug de overflow em `calcularFatorial`. Falhou em todos os outros, demonstrando ser um critério superficial. |
+| **Branch Coverage** | 33 | 4 de 6 | **Média-Alta.** Um salto significativo. Detectou o overflow em `fatorial`, os dois bugs em `avaliarExpressao`, e o bug de arredondamento em `mediaPonderada`. Falhou em `classificarNumero` e `converterBase`. |
+| **Path Coverage** | 38 | **6 de 6** | **Muito Alta.** Detectou todos os bugs. A necessidade de cobrir mais caminhos forçou a criação de testes que revelaram as falhas em `classificarNumero` e `converterBase`. |
+| **MC/DC Coverage** | 31 | **6 de 6** | **Muito Alta.** Detectou todos os bugs. A análise rigorosa das condições booleanas forçou testes específicos que revelaram todas as falhas, com um custo ligeiramente menor que o Path Coverage. |
+| **All-Uses Coverage** | 33 | **6 de 6** | **Muito Alta.** Detectou todos os bugs. Rastrear o ciclo de vida das variáveis (definição-uso) expôs todas as anomalias, incluindo a falha de validação em `converterBase`. |
 
-### 2. Branch Coverage (`branch.test.js`)
-- **5 testes** por função
-- Explora todos os caminhos de decisão
-- **Custo:** Médio
-- **Eficácia:** Média (detecta alguns bugs)
-
-### 3. MC/DC Coverage (`mcdc.test.js`)
-- **5 testes** por função
-- Testa condições de forma independente
-- **Custo:** Alto
-- **Eficácia:** Alta (detecta maioria dos bugs)
-
-### 4. All-Defs Coverage (`alldefs.test.js`)
-- **5 testes** por função
-- Testa todas as definições de variáveis
-- **Custo:** Muito Alto
-- **Eficácia:** Muito Alta
-
-### 5. All-c-uses Coverage (`allcuses.test.js`)
-- **5 testes** por função
-- Testa todos os usos computacionais
-- **Custo:** Muito Alto
-- **Eficácia:** Muito Alta
-
-### 6. All-p-uses Coverage (`allpuses.test.js`)
-- **5 testes** por função
-- Testa todos os usos predicativos
-- **Custo:** Muito Alto
-- **Eficácia:** Muito Alta
-
-### 7. All-uses Coverage (`alluses.test.js`)
-- **5 testes** por função
-- Combina All-c-uses e All-p-uses
-- **Custo:** Extremamente Alto
-- **Eficácia:** Muito Alta
-
-### 8. Path Coverage (`path.test.js`)
-- **11 testes** por função
-- Testa todos os caminhos de execução
-- **Custo:** Extremamente Alto
-- **Eficácia:** Muito Alta
-
-## Bugs Intencionais Implementados
+## Bugs Intencionais e Detecção
 
 ### 1. Bug de Overflow (calcularFatorial)
-- **Tipo:** Erro de boundary testing
-- **Detecção:** Branch Coverage, MC/DC, Data Flow
-- **Exemplo:** `calcularFatorial(18)` retorna -1 (overflow)
+- **Tipo:** Erro de limite (boundary).
+- **Detecção:** **Statement Coverage** e todos os critérios superiores.
+- **Exemplo que Detecta:** `expect(calcularFatorial(21)).toBe(-1)`.
 
 ### 2. Bug de Arredondamento (calcularMediaPonderada)
-- **Tipo:** Erro de lógica condicional
-- **Detecção:** MC/DC, Data Flow
-- **Exemplo:** `calcularMediaPonderada([1.95, 2], [1, 1])` retorna 2 (bug)
+- **Tipo:** Erro de lógica condicional.
+- **Detecção:** **Branch Coverage** e todos os critérios superiores.
+- **Exemplo que Detecta:** `expect(calcularMediaPonderada([1.96, 2], [1, 1])).toBe(1.98)`.
 
 ### 3. Bug de Classificação (classificarNumero)
-- **Tipo:** Erro de condição composta
-- **Detecção:** Branch Coverage, MC/DC, Path Coverage
-- **Exemplo:** `classificarNumero(12)` retorna 'abundante' (bug)
+- **Tipo:** Erro de operador relacional.
+- **Detecção:** **Path Coverage**, **MC/DC** e **All-Uses**.
+- **Exemplo que Detecta:** `expect(classificarNumero(6)).toBe('perfeito')`. A função com bug retorna 'abundante', causando a falha do teste.
 
 ### 4. Bug de Validação (converterBase)
-- **Tipo:** Erro de fluxo de dados
-- **Detecção:** Data Flow, Path Coverage
-- **Exemplo:** `converterBase('', 16, 10)` retorna '0' (bug)
+- **Tipo:** Erro de fluxo de dados/validação de entrada.
+- **Detecção:** **Branch Coverage** e todos os critérios superiores.
+- **Exemplo que Detecta:** `expect(converterBase('G', 16, 10)).toBe(null)`.
 
-### 5. Bug de Avaliação (avaliarExpressao)
-- **Tipo:** Erro de tratamento de casos especiais
-- **Detecção:** MC/DC, Path Coverage, Data Flow
-- **Exemplo:** `avaliarExpressao('1e-11')` retorna 0 (bug)
+### 5. Bugs de Avaliação (avaliarExpressao)
+- **Tipo:** Erro de tratamento de casos especiais.
+- **Detecção:** **Branch Coverage** e todos os critérios superiores.
+- **Exemplos que Detectam:**
+    - Bug 1 (-Infinity): `expect(avaliarExpressao('-1/0')).toBe(null)`.
+    - Bug 2 (Negativo ~0): `expect(avaliarExpressao('0.2 - 0.3')).toBe(0)`.
 
 ## Resultados do Experimento
 
 ### Métricas Coletadas
-- **Statement Coverage:** 5 testes, 100% detecção
-- **Branch Coverage:** 5 testes, 100% detecção  
-- **MC/DC Coverage:** 5 testes, 100% detecção
+- **Statement Coverage:** Atingiu 100% de cobertura de instrução com 25 testes, mas detectou apenas 1 dos 6 bugs.
+- **Branch Coverage:** Atingiu 100% de cobertura de desvio com 33 testes, detectando 4 dos 6 bugs.
+- **MC/DC e All-Uses:** Com 31 e 33 testes respectivamente, detectaram todos os 6 bugs, mostrando alta eficácia.
+- **Path Coverage:** Foi o mais custoso (38 testes), mas também detectou todos os 6 bugs.
 
 ### Validação das Hipóteses
-- **H1 (Rigor vs. Eficácia):** Não validada (todos detectaram 100%)
-- **H2 (Custo vs. Rigor):** Não validada (custos similares)
-- **H3 (Custo-Benefício):** Validada (MC/DC oferece melhor equilíbrio)
-
-## Documentação Criada
-
-### 1. `BUGS_E_CRITERIOS.md`
-- Descrição detalhada de cada bug
-- Critérios necessários para detecção
-- Casos de teste específicos
-- Análise de custo vs. eficácia
-
-### 2. Suítes de Teste Completas
-- 8 suítes diferentes para diferentes critérios
-- Testes específicos para cada bug
-- Cobertura abrangente de cenários
-
-## Melhorias Implementadas
-
-### 1. Complexidade Aumentada
-- Múltiplas decisões condicionais
-- Expressões booleanas compostas
-- Variáveis intermediárias
-- Cálculos interdependentes
-
-### 2. Bugs Sutis e Realistas
-- Erros de boundary testing
-- Bugs mascarados por lógica subsequente
-- Anomalias detectáveis apenas via fluxo de dados
-- Redefinições incorretas de variáveis
-
-### 3. Contexto Matemático Mantido
-- Cálculo de fatorial com casos especiais
-- Média ponderada com arredondamento
-- Classificação de números (perfeitos, abundantes)
-- Conversão entre sistemas numéricos
-- Avaliação de expressões matemáticas
+- **H1 (Rigor vs. Eficácia):** **Validada.** Houve uma clara correlação positiva. Critérios mais rigorosos como MC/DC e All-Uses foram significativamente mais eficazes (100% de detecção) do que o Statement Coverage (16.7% de detecção).
+- **H2 (Custo vs. Rigor):** **Validada.** O custo, medido pelo número de testes necessários para atingir 100% de cobertura, aumentou com o rigor do critério (de 25 testes para Statement até 38 para Path).
+- **H3 (Custo-Benefício):** **Validada.** O critério de Branch Coverage apresentou um grande salto de eficácia com um aumento moderado de custo. Os critérios MC/DC e All-Uses mostraram o melhor equilíbrio, alcançando eficácia máxima com um custo menor que o Path Coverage.
 
 ## Conclusões
-
-1. **Sucesso na Implementação:** Todas as funções foram implementadas com sucesso e testadas.
-
-2. **Bugs Efetivos:** Os bugs intencionais são sutis e realistas, adequados para testar diferentes critérios.
-
-3. **Cobertura Abrangente:** Criadas suítes para todos os critérios de cobertura solicitados.
-
-4. **Documentação Completa:** Documentação detalhada de bugs e critérios de detecção.
-
-5. **Experimento Funcional:** O sistema de experimento está funcionando e coletando métricas.
-
-6. **Diferenciação de Critérios:** As funções demonstram claramente as diferenças entre critérios de cobertura.
-
-O projeto agora oferece uma base sólida para experimentos empíricos sobre critérios de cobertura estrutural, com funções complexas que desafiam adequadamente diferentes níveis de rigor de teste. 
+1.  **Sucesso na Implementação:** Todas as funções foram implementadas com sucesso e testadas.
+2.  **Bugs Efetivos:** Os bugs intencionais são sutis e realistas, adequados para testar diferentes critérios.
+3.  **Diferenciação Clara de Critérios:** O experimento demonstra com dados que a escolha do critério de cobertura impacta diretamente a qualidade da suíte de testes e sua capacidade de encontrar falhas.
