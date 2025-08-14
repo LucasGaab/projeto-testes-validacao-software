@@ -77,7 +77,7 @@ describe('Path Coverage Suite (Corrigida)', () => {
     expect(converterBase('invalid', 10, 2)).toBe(null);
   });
 
-  test('should cover all acyclic paths in avaliarExpressao', () => {
+ test('should cover all acyclic paths in avaliarExpressao', () => {
     // Caminho 1: !expressao
     expect(avaliarExpressao(null)).toBe(null);
     // Caminho 2: expressao.length === 0
@@ -86,11 +86,18 @@ describe('Path Coverage Suite (Corrigida)', () => {
     expect(avaliarExpressao('2a+3')).toBe(null);
     // Caminho 4: eval() lança erro (try-catch)
     expect(avaliarExpressao('2+')).toBe(null);
-    // Caminho 5: resultado não é finito
-    expect(avaliarExpressao('2/0')).toBe(null);
-    // Caminho 6: resultado muito próximo de zero
+    // Caminho 5: resultado é +infinito
+    expect(avaliarExpressao('1/0')).toBe(null);
+    // Caminho 6: resultado muito próximo de zero (positivo)
     expect(avaliarExpressao('1e-11')).toBe(0);
     // Caminho 7: resultado normal
     expect(avaliarExpressao('2+3')).toBe(5);
-  });
+
+    // NOVO: Caminho 8: resultado é -infinito (CAPTURA O BUG 1)
+    // O esperado é null, mas a função com bug retornará -Infinity.
+    expect(avaliarExpressao('-1/0')).toBe(null);
+
+    // NOVO: Caminho 9: resultado muito próximo de zero (negativo) (CAPTURA O BUG 2)
+    // O esperado é 0, mas a função com bug retornará um número pequeno e negativo.
+    expect(avaliarExpressao('0.2 - 0.3')).toBe(0);
 });
