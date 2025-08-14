@@ -2,7 +2,7 @@
 // FUNÇÃO 1: CÁLCULO DE FATORIAL COM TRATAMENTO DE CASOS ESPECIAIS
 // ============================================================================
 // Bug: Não trata corretamente o caso de overflow para números grandes
-// Critérios necessários: Branch Coverage (Indiretamente), MC/DC, Data Flow (All-uses)
+// Oracle masking
 
 function calcularFatorial(n) {
   // Validação de entrada
@@ -38,7 +38,7 @@ function calcularFatorial(n) {
 // FUNÇÃO 2: MÉDIA PONDERADA COM ARREDONDAMENTO CONDICIONAL
 // ============================================================================
 // Bug: Arredondamento incorreto para valores próximos de inteiros
-// Critérios necessários: Branch Coverage, MC/DC, Data Flow (All-c-uses)
+// Critérios necessários: Qualquer um, apesar disso seria mais evidente o bug com MCDC
 
 function calcularMediaPonderada(valores, pesos, precisao = 2) {
   // Validações
@@ -92,7 +92,7 @@ function calcularMediaPonderada(valores, pesos, precisao = 2) {
 // FUNÇÃO 3: VERIFICAÇÃO DE NÚMEROS PERFEITOS E ABUNDANTES
 // ============================================================================
 // Bug: Não detecta corretamente números abundantes em casos específicos
-// Critérios necessários: Branch Coverage, MC/DC, Path Coverage
+// Masking pela condicional acima do bug, detectado por mutação
 
 function classificarNumero(numero) {
   if (numero <= 0) {
@@ -134,7 +134,7 @@ function classificarNumero(numero) {
 // FUNÇÃO 4: CONVERSÃO ENTRE SISTEMAS NUMÉRICOS (COM BUG INTRODUZIDO)
 // ============================================================================
 // Bug: Não valida corretamente entradas hexadecimais com caracteres inválidos
-// Critérios necessários: Data Flow (All-defs, All-uses), Branch Coverage
+// Não detectado, mas seria caso fosse via fuzzing ou outros testes blackbox que explora inputs distintos
 
 function converterBase(numero, baseOrigem, baseDestino) {
   // Validações básicas
@@ -173,6 +173,7 @@ function converterBase(numero, baseOrigem, baseDestino) {
 // FUNÇÃO 5: AVALIAÇÃO DE EXPRESSÕES MATEMÁTICAS
 // ============================================================================
 // Bug: Não aplica corretamente a precedência de verificação de arredondamento e infinito para valores <0
+// Detectado o problema con -infinito: MCDC, branch, puses, alluses e path
 
 function avaliarExpressao(expressao) {
   // Validação básica
