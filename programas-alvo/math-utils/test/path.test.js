@@ -70,7 +70,7 @@ describe('Path Coverage Suite (Corrigida)', () => {
     // Caminho 5: tipo é string, caractere inválido
     expect(converterBase('G', 16, 10)).toBe(null);
     // Caminho 6: tipo é string, conversão ok, baseDestino === 10
-    expect(converterBase('A', 16, 10)).toBe('16');
+    expect(converterBase('A', 16, 10)).toBe('10');
     // Caminho 7: tipo é string, conversão ok, baseDestino !== 10
     expect(converterBase('10', 10, 16)).toBe('A');
     // Caminho 8: tipo é string, conversão falha (isNaN)
