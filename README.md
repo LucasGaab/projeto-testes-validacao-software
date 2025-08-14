@@ -32,56 +32,24 @@ O experimento foi atualizado com as seguintes etapas:
    - Complexidade ciclomática de cada função
    - Taxa de detecção por tipo de bug
 
-## 4. Estrutura do Projeto Atualizada
-
-```
-/criterios-cobertura-experimento
-├── /programas-alvo
-│   └── /math-utils
-│       ├── index.js          # Funções principais
-│       ├── __tests__         # Testes unitários
-│       └── coverage/         # Relatórios de cobertura
-├── /suites-de-teste
-│   ├── statement-coverage/   # Cobertura de instruções
-│   ├── branch-coverage/      # Cobertura de desvios
-│   ├── mcdc/                 # MC/DC
-│   ├── data-flow/            # Fluxo de dados
-│   └── path-coverage/        # Cobertura de caminhos
-├── /resultados
-│   ├── raw-data.json         # Dados brutos
-│   └── analysis-report.md    # Relatório consolidado
-├── /scripts
-│   ├── setup.js              # Configuração inicial
-│   ├── generate-tests.js     # Geração de testes
-│   ├── run-experiment.js     # Execução do experimento
-│   └── analyze.js            # Análise dos resultados
-└── README.md
-```
-
-## 5. Como Executar o Experimento
+## 4. Como Executar o Experimento
 
 Para replicar o experimento ampliado:
 
 1. **Clone o repositório:**
    ```bash
    git clone [URL_DO_REPOSITORIO]
-   cd criterios-cobertura-experimento
    ```
 
 2. **Instale as dependências:**
    ```bash
-   cd programas-alvo/math-utils
    npm install
-   npm install -g jest nyc
    ```
 
-3. **Execute o experimento completo:**
+2. **Execute o experimento completo:**
    ```bash
-   # Na raiz do projeto
-   npm run setup
-   npm run generate-tests
-   npm run experiment
-   npm run analyze
+   npm run test
+   npm run test-coverage
    ```
 
 ## 6. Resultados Esperados
@@ -99,10 +67,7 @@ O experimento ampliado permitirá analisar:
    - Número de casos de teste necessários
    - Complexidade dos casos de teste
    - Tempo de execução das suítes
-
-3. **Recomendações por Cenário:**
-   - Qual critério é mais adequado para cada tipo de função
-   - Combinação ideal de critérios para máxima eficácia
+   - Cobertura de código
 
 ## 7. Análise Preliminar
 
