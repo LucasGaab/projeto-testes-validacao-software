@@ -30,7 +30,7 @@ describe('Branch Coverage Suite (Corrigida)', () => {
      // for loop -> entra; if (pesos[i] <= 0) -> true
     expect(calcularMediaPonderada([1, 2], [1, 0])).toBe(null);
     // todos os ifs de validação -> false; if (parteDecimal > 0.95 && precisao === 2) -> true (BUG)
-    expect(calcularMediaPonderada([1.96, 2], [1, 1])).toBe(2);
+    expect(calcularMediaPonderada([1.96, 2], [1, 1])).toBe(1.98);
     // if (parteDecimal > 0.95 && precisao === 2) -> false (pela precisao)
     expect(calcularMediaPonderada([1.96, 2], [1, 1], 3)).toBe(1.98);
      // if (parteDecimal > 0.95 && precisao === 2) -> false (pela parteDecimal)
