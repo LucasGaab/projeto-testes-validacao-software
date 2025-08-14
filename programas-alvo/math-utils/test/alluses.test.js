@@ -89,5 +89,5 @@ describe('All-Uses Coverage Suite (Corrigida)', () => {
     // Testa o fluxo de eval -> if(resultado > 0 && ...)
     // O esperado é 0, mas a função com bug retornará um número pequeno e negativo.
     expect(avaliarExpressao('0.2 - 0.3')).toBe(0);
-});
+  });
 });
