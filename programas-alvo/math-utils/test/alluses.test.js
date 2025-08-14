@@ -71,9 +71,22 @@ describe('All-Uses Coverage Suite (Corrigida)', () => {
     expect(avaliarExpressao('')).toBe(null);
     expect(avaliarExpressao('2a+3')).toBe(null);
     expect(avaliarExpressao('2+')).toBe(null); // eval lança erro
-    // Cobre def de 'resultado' vindo de 'eval' -> uso no isFinite e Math.abs
-    expect(avaliarExpressao('2/0')).toBe(null);
+
+    // Cobre def de 'resultado' vindo de 'eval' -> uso no 'if' e no 'return'
+    // Uso em if (resultado === Infinity)
+    expect(avaliarExpressao('1/0')).toBe(null);
+    // Uso em if (resultado > 0 && ...)
     expect(avaliarExpressao('1e-11')).toBe(0);
+    // Uso no return (caminho normal)
     expect(avaliarExpressao('0.1')).toBe(0.1);
-  });
+
+    // NOVO: Teste para o def-use com resultado = -Infinity (CAPTURA O BUG 1)
+    // Testa o fluxo de eval -> if(resultado === Infinity)
+    // O esperado é null, mas a função com bug retornará -Infinity.
+    expect(avaliarExpressao('-1/0')).toBe(null);
+
+    // NOVO: Teste para o def-use com resultado negativo pequeno (CAPTURA O BUG 2)
+    // Testa o fluxo de eval -> if(resultado > 0 && ...)
+    // O esperado é 0, mas a função com bug retornará um número pequeno e negativo.
+    expect(avaliarExpressao('0.2 - 0.3')).toBe(0);
 });
